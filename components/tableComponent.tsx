@@ -20,14 +20,14 @@ import { visuallyHidden } from '@mui/utils';
 
 interface Data {
   active: boolean,
-  offerType: string,
+  offerType: number,
   offerId: string,
   amountAlice: number,
   feeAlice: string,
   feeBob: string,
   smallestChunkSize: string,
   minimumSize: string,
-  deadline: string,
+  deadline: number,
   amountRemaining: string,
   offerer: string,
   payoutAddress: string,
@@ -39,33 +39,6 @@ interface Data {
   minimumOrderAddresses: Array<any>,
   minimumOrderTokens: Array<any>,
   tokenBob: Array<any>,
-}
-
-function createData(
-  innerData: any
-): Data {
-  return {
-    active: innerData.active,
-    offerType: innerData.offerType,
-    offerId: innerData.offerId,
-    amountAlice: innerData.amountAlice,
-    feeAlice: innerData.feeAlice,
-    feeBob: innerData.feeBob,
-    smallestChunkSize: innerData.smallestChunkSize,
-    minimumSize: innerData.minimumSize,
-    deadline: innerData.deadline,
-    amountRemaining: innerData.amountRemaining,
-    offerer: innerData.offerer,
-    payoutAddress: innerData.payoutAddress,
-    tokenAlice: innerData.tokenAlice,
-    capabilities: innerData.capabilities,
-    amountBob: innerData.amountBob,
-    minimumOrderAmountsAlice: innerData.minimumOrderAmountsAlice,
-    minimumOrderAmountsBob: innerData.minimumOrderAmountsBob,
-    minimumOrderAddresses: innerData.minimumOrderAddresses,
-    minimumOrderTokens: innerData.minimumOrderTokens,
-    tokenBob: innerData.tokenBob,
-  };
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -245,7 +218,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   );
 };
 
-export default function EnhancedTable({ contractData }: {contractData: Array<Data>}) {
+export default function EnhancedTable({ contractData }: { contractData: Array<Data> }) {
   const [rows, setRows] = React.useState<Data[]>(contractData);
 
   const [order, setOrder] = React.useState<Order>('asc');
@@ -309,16 +282,18 @@ export default function EnhancedTable({ contractData }: {contractData: Array<Dat
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  // задание 7а
   const [amountAliceFilter, setAmountAliceFilter] = React.useState<number>(0);
+  const [offerTypeFilter, setOfferTypeFilter] = React.useState<number>(-1);
 
   const handleAmountAliceFilter = (event: SelectChangeEvent) => {
     setAmountAliceFilter(Number(event.target.value));
   };
 
+  const handleOfferTypeFilter = (event: SelectChangeEvent) => {
+    setOfferTypeFilter(Number(event.target.value));
+  };
+
   const doAmountAliceFilter = (element: Data, index: number, array: Array<Data>) => {
-    console.log(element.amountAlice);
-    console.log(amountAliceFilter);
     switch (amountAliceFilter) {
       case 1:
         return element.amountAlice >= 0 && element.amountAlice < 1000
@@ -333,9 +308,16 @@ export default function EnhancedTable({ contractData }: {contractData: Array<Dat
     }
   };
 
+  const doOfferTypeFilter = (element: Data, index: number, array: Array<Data>) => {
+    if (offerTypeFilter == -1)
+      return true
+
+    return element.offerType == offerTypeFilter
+  };
+
   useEffect(() => {
-    setRows(contractData.filter(doAmountAliceFilter));
-  }, [amountAliceFilter]);
+    setRows(contractData.filter(doAmountAliceFilter).filter(doOfferTypeFilter));
+  }, [amountAliceFilter, offerTypeFilter]);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -368,7 +350,7 @@ export default function EnhancedTable({ contractData }: {contractData: Array<Dat
                       key={row.offerId}
                     >
                       <TableCell align="right">{row.offerId}</TableCell>
-                      <TableCell align="right">{parseInt(row.deadline, 10)}</TableCell>
+                      <TableCell align="right">{row.deadline}</TableCell>
                       <TableCell align="right">{row.offerType}</TableCell>
                       <TableCell align="right">{row.amountAlice}</TableCell>
                       <TableCell align="right">{row.feeAlice}</TableCell>
@@ -403,7 +385,7 @@ export default function EnhancedTable({ contractData }: {contractData: Array<Dat
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
-        <Box sx={{ maxWidth: 240 }}>
+        <Box sx={{ maxWidth: 240 }} style={{marginBottom: 30}}>
           <FormControl fullWidth>
             <InputLabel id="amountAliceFilter-select-label">Amount Alice Filter</InputLabel>
             <Select
@@ -418,6 +400,26 @@ export default function EnhancedTable({ contractData }: {contractData: Array<Dat
               <MenuItem value={2}>от 1000 до 100 000</MenuItem>
               <MenuItem value={3}>от 100 000 до 10 000 000</MenuItem>
               <MenuItem value={4}>от 10 000 000 и выше</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+        <Box sx={{ maxWidth: 240 }} style={{marginBottom: 30}}>
+          <FormControl fullWidth>
+            <InputLabel id="offerType-select-label">Amount Alice Filter</InputLabel>
+            <Select
+              labelId="offerType-select-label"
+              id="offerType-select"
+              value={offerTypeFilter.toString()}
+              label="Amount Alice Filter"
+              onChange={handleOfferTypeFilter}
+            >
+              <MenuItem value={-1}>Все</MenuItem>
+              <MenuItem value={0}>0</MenuItem>
+              <MenuItem value={1}>1</MenuItem>
+              <MenuItem value={2}>2</MenuItem>
+              <MenuItem value={3}>3</MenuItem>
+              <MenuItem value={4}>4</MenuItem>
+              <MenuItem value={5}>5</MenuItem>
             </Select>
           </FormControl>
         </Box>

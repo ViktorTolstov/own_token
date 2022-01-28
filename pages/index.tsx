@@ -11,14 +11,14 @@ type Data = {
 
 type DataElement = {
   active: boolean,
-  offerType: string,
+  offerType: number,
   offerId: string,
-  amountAlice: string,
+  amountAlice: number,
   feeAlice: string,
   feeBob: string,
   smallestChunkSize: string,
   minimumSize: string,
-  deadline: string,
+  deadline: number,
   amountRemaining: string,
   offerer: string,
   payoutAddress: string,
