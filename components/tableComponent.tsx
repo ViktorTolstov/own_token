@@ -22,7 +22,7 @@ interface Data {
   active: boolean,
   offerType: string,
   offerId: string,
-  amountAlice: string,
+  amountAlice: number,
   feeAlice: string,
   feeBob: string,
   smallestChunkSize: string,
@@ -245,11 +245,8 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   );
 };
 
-export default function EnhancedTable({ contractData }: any) {
-  let rows: Array<Data> = []
-  contractData.forEach((element: any) => {
-    rows.push(createData(element))
-  });
+export default function EnhancedTable({ contractData }: {contractData: Array<Data>}) {
+  const [rows, setRows] = React.useState<Data[]>(contractData);
 
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<keyof Data>('offerId');
@@ -312,6 +309,33 @@ export default function EnhancedTable({ contractData }: any) {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
+  // задание 7а
+  const [amountAliceFilter, setAmountAliceFilter] = React.useState<number>(0);
+
+  const handleAmountAliceFilter = (event: SelectChangeEvent) => {
+    setAmountAliceFilter(Number(event.target.value));
+  };
+
+  const doAmountAliceFilter = (element: Data, index: number, array: Array<Data>) => {
+    console.log(element.amountAlice);
+    console.log(amountAliceFilter);
+    switch (amountAliceFilter) {
+      case 1:
+        return element.amountAlice >= 0 && element.amountAlice < 1000
+      case 2:
+        return element.amountAlice >= 1000 && element.amountAlice < 100000
+      case 3:
+        return element.amountAlice >= 100000 && element.amountAlice < 10000000
+      case 4:
+        return element.amountAlice >= 10000000
+      default:
+        return true;
+    }
+  };
+
+  useEffect(() => {
+    setRows(contractData.filter(doAmountAliceFilter));
+  }, [amountAliceFilter]);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -332,7 +356,7 @@ export default function EnhancedTable({ contractData }: any) {
               rowCount={rows.length}
             />
             <TableBody>
-              {rows.slice().sort(getComparator(order, orderBy))
+              {rows.sort(getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const labelId = `enhanced-table-checkbox-${index}`;
@@ -379,6 +403,24 @@ export default function EnhancedTable({ contractData }: any) {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
+        <Box sx={{ maxWidth: 240 }}>
+          <FormControl fullWidth>
+            <InputLabel id="amountAliceFilter-select-label">Amount Alice Filter</InputLabel>
+            <Select
+              labelId="amountAliceFilter-select-label"
+              id="amountAliceFilter-select"
+              value={amountAliceFilter.toString()}
+              label="Amount Alice Filter"
+              onChange={handleAmountAliceFilter}
+            >
+              <MenuItem value={0}>Все</MenuItem>
+              <MenuItem value={1}>от 0 до 1000</MenuItem>
+              <MenuItem value={2}>от 1000 до 100 000</MenuItem>
+              <MenuItem value={3}>от 100 000 до 10 000 000</MenuItem>
+              <MenuItem value={4}>от 10 000 000 и выше</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
       </Paper>
     </Box>
   );
