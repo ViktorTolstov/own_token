@@ -29,7 +29,7 @@ type DataElement = {
   minimumOrderAmountsBob: Array<any>,
   minimumOrderAddresses: Array<any>,
   minimumOrderTokens: Array<any>,
-  tokenBob: Array<any>,
+  tokenBob: Array<string>,
 }
 
 const Home = ({ offers }: InferGetStaticPropsType<typeof getStaticProps>) => {

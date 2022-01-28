@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { visuallyHidden } from '@mui/utils';
@@ -38,7 +39,7 @@ interface Data {
   minimumOrderAmountsBob: Array<any>,
   minimumOrderAddresses: Array<any>,
   minimumOrderTokens: Array<any>,
-  tokenBob: Array<any>,
+  tokenBob: Array<string>,
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -284,6 +285,7 @@ export default function EnhancedTable({ contractData }: { contractData: Array<Da
 
   const [amountAliceFilter, setAmountAliceFilter] = React.useState<number>(0);
   const [offerTypeFilter, setOfferTypeFilter] = React.useState<number>(-1);
+  const [tokenSearchFilter, setTokenSearchFilter] = React.useState<string>("");
 
   const handleAmountAliceFilter = (event: SelectChangeEvent) => {
     setAmountAliceFilter(Number(event.target.value));
@@ -291,6 +293,10 @@ export default function EnhancedTable({ contractData }: { contractData: Array<Da
 
   const handleOfferTypeFilter = (event: SelectChangeEvent) => {
     setOfferTypeFilter(Number(event.target.value));
+  };
+
+  const handleTokenSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTokenSearchFilter(event.target.value);
   };
 
   const doAmountAliceFilter = (element: Data, index: number, array: Array<Data>) => {
@@ -315,9 +321,23 @@ export default function EnhancedTable({ contractData }: { contractData: Array<Da
     return element.offerType == offerTypeFilter
   };
 
+  const doTokenSearchFilter = (element: Data, index: number, array: Array<Data>) => {
+    if (tokenSearchFilter == "" || element.tokenAlice.indexOf(tokenSearchFilter) != -1)
+      return true
+
+    element.tokenBob.forEach(el => {
+      if (el.indexOf(tokenSearchFilter))
+      {
+        return true
+      }
+    });
+    
+    return false
+  };
+
   useEffect(() => {
-    setRows(contractData.filter(doAmountAliceFilter).filter(doOfferTypeFilter));
-  }, [amountAliceFilter, offerTypeFilter]);
+    setRows(contractData.filter(doAmountAliceFilter).filter(doOfferTypeFilter).filter(doTokenSearchFilter));
+  }, [amountAliceFilter, offerTypeFilter, tokenSearchFilter]);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -385,7 +405,7 @@ export default function EnhancedTable({ contractData }: { contractData: Array<Da
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
-        <Box sx={{ maxWidth: 240 }} style={{marginBottom: 30}}>
+        <Box sx={{ maxWidth: 240 }} style={{ marginBottom: 30 }}>
           <FormControl fullWidth>
             <InputLabel id="amountAliceFilter-select-label">Amount Alice Filter</InputLabel>
             <Select
@@ -403,7 +423,7 @@ export default function EnhancedTable({ contractData }: { contractData: Array<Da
             </Select>
           </FormControl>
         </Box>
-        <Box sx={{ maxWidth: 240 }} style={{marginBottom: 30}}>
+        <Box sx={{ maxWidth: 240 }} style={{ marginBottom: 30 }}>
           <FormControl fullWidth>
             <InputLabel id="offerType-select-label">Amount Alice Filter</InputLabel>
             <Select
@@ -422,6 +442,9 @@ export default function EnhancedTable({ contractData }: { contractData: Array<Da
               <MenuItem value={5}>5</MenuItem>
             </Select>
           </FormControl>
+        </Box>
+        <Box sx={{ maxWidth: 480 }} style={{ marginBottom: 30 }}>
+          <TextField id="tokenSearch" label="Token Search" variant="outlined" onChange={handleTokenSearch} />
         </Box>
       </Paper>
     </Box>

@@ -37,7 +37,7 @@ type DataElement = {
   minimumOrderAmountsBob: Array<any>,
   minimumOrderAddresses: Array<any>,
   minimumOrderTokens: Array<any>,
-  tokenBob: Array<any>,
+  tokenBob: Array<string>,
 }
 
 export default async function handler(
